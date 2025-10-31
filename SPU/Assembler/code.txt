@@ -1,0 +1,8 @@
+PUSH -10
+PUSH 2
+:5
+ADD
+OUT
+HLT
+
+PUSH 2
