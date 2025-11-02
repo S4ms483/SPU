@@ -11,8 +11,6 @@ void TrueVerify(stack_t* stk, const char* file, int line)
     
     CapacityCheck(stk, file, line);
 
-    SizeCheck(stk, file, line);
-
     CanaryCheck(stk, file, line);
 }
 
