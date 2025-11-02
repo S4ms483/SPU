@@ -63,7 +63,7 @@ void StackPop(stack_t* stk)
 {
     StackVerify(stk);
 
-    stk->processor[stk->size] = 0;
+    stk->processor[stk->size--] = 0;
 
     StackVerify(stk);
 
@@ -139,7 +139,6 @@ int StackVariable(stack_t* stk)
 {
     int res = stk->processor[stk->size];
     StackPop(stk);
-    stk->size--;
     return res;
 }
 
