@@ -18,8 +18,6 @@ void AddLabels(Processor* processor, Spu* spu)
 
         int nargs = sscanf(processor->strs[i], "%d %d", &command, &arg);
 
-        // printf("ncom = %d\n", ncomm);
-
         switch (command)
         {
             case Push:
@@ -41,7 +39,7 @@ void AddLabels(Processor* processor, Spu* spu)
             }
             case Label:
             {
-                spu->labels[arg] = ncomm + 1;
+                spu->labels[arg] = ncomm;
                 break;
             }
             default:
@@ -63,8 +61,6 @@ void AddCode(Processor* processor, Spu* spu)
         int arg = 0;
 
         int nargs = sscanf(processor->strs[i], "%d %d", &command, &arg);
-
-        // printf("ncom = %d\n", ncomm);
 
         if (nargs > 0)
         {
@@ -105,11 +101,6 @@ void AddCode(Processor* processor, Spu* spu)
             }
         }
     }
-
-    for (size_t i = 0; i < ncomm; i++)
-    {
-        fprintf(stderr, "%d\n", spu->code[i]);
-    }
 }
 
 
@@ -121,51 +112,49 @@ void PerformCode(Spu* spu, Processor* processor)
 
     int command = spu->code[(spu->ic)];
 
-    fprintf(stderr, "nComm = %d\n", processor->nComm);
-
     while ((spu->ic < processor->nComm) && (command != Hlt))
     {
-        int command = spu->code[(spu->ic)++];
-        //fprintf(stderr, "Command is %d, ic is %d\n", command, spu->ic);
-
+        command = spu->code[(spu->ic++)];
+        
         int arg = 0;
         int nArgs = 0;
 
+        
         switch (command)
         {
             case Hlt:
                 break;
-
+            
             case Push:
                 arg = spu->code[(spu->ic)++];
                 StackPush(&spu->stack, arg);
                 break;
-
+            
             case Pop:
                 StackPop(&spu->stack);
                 break;
-
+            
             case Add:
             case Sub:
             case Mul:
             case Div:
                 ArifmOperation(&spu->stack, command);
                 break;
-
+            
             case Sqrt:
                 StackSqrt(&spu->stack);
                 break;
-
+            
             case Pushr:
                 arg = spu->code[(spu->ic)++];
                 StackPushr(&spu->stack, spu->regs, arg);
                 break;
-
+            
             case Popr:
                 arg = spu->code[(spu->ic)++];
                 StackPopr(&spu->stack, spu->regs, arg);
                 break;
-
+            
             case In:
                 printf("Enter a number to push:\n");
                 nArgs = scanf("%d", &arg) != 0;
@@ -177,7 +166,7 @@ void PerformCode(Spu* spu, Processor* processor)
                 arg = StackVariable(&spu->stack);
                 printf("Last variable in stack: %d\n", arg);
                 break;
-
+                
             case Jb:
             case Jbe:
             case Ja:
@@ -186,14 +175,13 @@ void PerformCode(Spu* spu, Processor* processor)
             case Jne:
                 if (!ComparisonOperations(&spu->stack, command))
                 {
+                    spu->ic++;
                     break;
                 }
-
+                
             case Jmp:
                 arg = spu->code[(spu->ic)++];
                 spu->ic = arg;
-                StackPop(&spu->stack);
-                StackPop(&spu->stack);
                 break;
             
             case Call:
@@ -206,32 +194,32 @@ void PerformCode(Spu* spu, Processor* processor)
                 arg = StackVariable(&spu->retAdrs);
                 spu->ic = arg;
                 break;
-
+            
             case Pushm:
                 assert(spu->code[(spu->ic)] < ramSize);
-
+            
                 arg = spu->ram[spu->code[(spu->ic++)]];
                 StackPush(&spu->stack, arg);
                 break;
-
+            
             case Popm:
                 assert(spu->code[(spu->ic)] < ramSize);
-
+                
                 arg = StackVariable(&spu->stack);
                 spu->ram[spu->code[(spu->ic++)]] = arg;
                 break;
-
+                
             default:
                 fprintf(stderr, "Unknown command ic = %d\n", spu->ic);
+            }
         }
     }
-}
 
-
-void ArifmOperation(stack_t* stk, int command)
+    
+    void ArifmOperation(stack_t* stk, int command)
 {
     assert(stk != NULL);
-
+    
     switch (command)
     {
         case Add:
@@ -243,7 +231,7 @@ void ArifmOperation(stack_t* stk, int command)
             break;
 
         case Mul:
-            StackSub(stk);
+            StackMul(stk);
             break;
         
         case Div:
