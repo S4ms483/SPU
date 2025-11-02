@@ -49,14 +49,4 @@ void AsmDump(Assembler* assm, const char* file, int line)
             printf("assm->commands[%lu] = %10d\n", i, assm->commands[i]);
         }
     }
-
-    printf("Labels array address %p\n", assm->labels);
-
-    if ((assm->labels != NULL) && (assm != NULL))
-    {
-        for (size_t i = 0; i < 10; i++)
-        {
-            printf("assm->labels[%lu] = %10d\n", i, assm->labels[i]);
-        }
-    }
 }
